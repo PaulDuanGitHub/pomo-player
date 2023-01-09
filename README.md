@@ -15,7 +15,15 @@ Feel free to fork or pull request to add on or fix bugs. There only one place to
 src\java\res\values\strings.xml
 ```
 
-## Todo List
+## Update Log
+### Updated
+- Add wake lock.
+### Todo
 - Save and read last playing index and progress.
 - Choose local music folder.
 - Click and play.
+
+## Reference
+### Wake lock
+- https://developer.android.com/training/scheduling/wakelock?hl=zh-cn#java
+- https://blog.csdn.net/wzj0808/article/details/52608940

@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.os.IBinder;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -33,6 +35,9 @@ public class MusicService extends Service {
     // Current
     public int current = 0;
 
+    private PowerManager powerManager;
+    private WakeLock wakeLock;
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -41,6 +46,12 @@ public class MusicService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        // Init and add Wake Lock
+        powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                "PomoPlayer::musicService");
+        wakeLock.acquire();
+
         // Create BroadcastReceiver
         serviceReceiver = new MyReceiver();
         // Create IntentFilter
@@ -171,6 +182,7 @@ public class MusicService extends Service {
     public void onDestroy() {
         super.onDestroy();
         unregisterReceiver(serviceReceiver);
+        wakeLock.release();
         mPlayer.release();
     }
 
