@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Pomo Player</string>
+    <string name="default_path">/storage/emulated/0/Music/</string>
+<!--    <string name="default_path">/storage/3034-3430/Music/</string>-->
+</resources>

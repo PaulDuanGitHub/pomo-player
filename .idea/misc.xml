@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.122" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/2.xml" value="0.121" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_add.xml" value="0.124" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_launcher.xml" value="0.122" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_launcher_background.xml" value="0.122" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.1345" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_logo.xml" value="0.1345" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_music_note.xml" value="0.124" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_next.xml" value="0.179" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_pause.xml" value="0.179" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_play.xml" value="0.179" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_prev.xml" value="0.179" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_reorder.xml" value="0.2555" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_reorder2.xml" value="0.2555" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_splash.xml" value="0.1345" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_splash2.xml" value="0.121" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_splash3.xml" value="0.122" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_splash_logo.xml" value="0.121" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_stop.xml" value="0.179" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_test.xml" value="0.1345" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/ic_timer.xml" value="0.124" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/drawable/play.xml" value="0.179" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/layout/activity_main.xml" value="0.211" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/layout/ic_laucher.xml" value="0.1109375" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/layout/interval_item.xml" value="0.22826086956521738" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/layout/music_item.xml" value="0.19635416666666666" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/layout/playing_interval_item.xml" value="0.12395833333333334" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/layout/playing_music_item.xml" value="0.12395833333333334" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.124" />
+        <entry key="..\:/Develop/music_player_d/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.124" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>
