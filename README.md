@@ -16,14 +16,18 @@ src\java\res\values\strings.xml
 ```
 
 ## Update Log
-### Updated
+#### Updated
 - Add wake lock.
-### Todo
 - Save and read last playing index and progress.
+#### Todo
 - Choose local music folder.
 - Click and play.
 
 ## Reference
-### Wake lock
+#### Wake lock
 - https://developer.android.com/training/scheduling/wakelock?hl=zh-cn#java
 - https://blog.csdn.net/wzj0808/article/details/52608940
+#### SharedPreferences
+- https://developer.android.com/reference/android/content/SharedPreferences
+- https://www.jianshu.com/p/540e44f00d3e
+- https://stackoverflow.com/questions/10614696/how-to-pass-parameters-to-onclicklistener

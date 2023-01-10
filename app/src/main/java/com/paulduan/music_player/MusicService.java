@@ -5,6 +5,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -22,13 +24,12 @@ public class MusicService extends Service {
     private boolean isIntervalPaused = false;
     private boolean isInterval = false;
     private String currentFileName;
-
+    private boolean isInit = true;
     public MusicService() {
     }
 
     private MyReceiver serviceReceiver;
     private Thread processThread;
-    ArrayList<String> musics = new ArrayList<>();
     private MediaPlayer mPlayer;
     // Not playing: 0x11, playing: 0x12, paused: 0x13
     public int status = 0x11;
@@ -37,6 +38,7 @@ public class MusicService extends Service {
 
     private PowerManager powerManager;
     private WakeLock wakeLock;
+    private SharedPreferences sharedPreferences;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -51,6 +53,9 @@ public class MusicService extends Service {
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 "PomoPlayer::musicService");
         wakeLock.acquire();
+
+        // Init SharedPreferences
+        sharedPreferences = MusicService.this.getSharedPreferences("SP", MODE_PRIVATE);
 
         // Create BroadcastReceiver
         serviceReceiver = new MyReceiver();
@@ -81,13 +86,6 @@ public class MusicService extends Service {
             }
         });
 
-        mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                mPlayer.start();
-            }
-        });
-
         /**
          * For MediaPlayer if get wrong, it will call onCompletion if onError return false;
          */
@@ -101,6 +99,33 @@ public class MusicService extends Service {
                 return true;
             }
         });
+
+        // Load current and progress from SharedPreferences
+        current = sharedPreferences.getInt("current",0);
+        isInterval = sharedPreferences.getBoolean("isInterval", false);
+        int savedProgress = sharedPreferences.getInt("progress",-1);
+        if (isInterval && savedProgress != -1) { // Is interval
+            isIntervalPaused = true;
+            intervalStartTime = (int) (System.currentTimeMillis() - savedProgress);
+            intervalCheckPoint = System.currentTimeMillis() - intervalStartTime;
+            status = 0x13;
+            Intent sendIntent = new Intent(MainActivity.UPDATE_ACTION);
+            sendIntent.putExtra("current", current);
+            sendBroadcast(sendIntent);
+        } else if (!isInterval && savedProgress != -1) {
+            String savedFileName = MainActivity.pieceList.get(current).getFileName();
+            String musicPath = new File(getResources().getString(R.string.default_path), savedFileName).getPath();
+            try {
+                mPlayer.setOnPreparedListener(new MyOnPreparedListener(savedProgress));
+                mPlayer.setDataSource(musicPath);
+                mPlayer.prepareAsync();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            status = 0x13;
+        }
+
         // TimeTask is not as flexible as Thread with while loop.
         processThread = new Thread(() -> {
             while (true) {
@@ -183,10 +208,23 @@ public class MusicService extends Service {
         super.onDestroy();
         unregisterReceiver(serviceReceiver);
         wakeLock.release();
+
+        // Save current and progress on destroy
+        Editor editor = sharedPreferences.edit();
+        editor.putInt("current", current);
+        if(isInterval) { // Is interval
+            editor.putInt("progress", (int) (System.currentTimeMillis() - intervalStartTime));
+            editor.putBoolean("isInterval", true);
+        }else { // Not interval
+            editor.putInt("progress", mPlayer.getCurrentPosition());
+            editor.putBoolean("isInterval", false);
+        }
+        editor.commit();
+
         mPlayer.release();
     }
 
-    public class MyReceiver extends BroadcastReceiver {
+    private class MyReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(final Context context, Intent intent) {
             if (intent.getAction() == MainActivity.UPDATE_LIST) { // Update list action
@@ -221,6 +259,10 @@ public class MusicService extends Service {
                                 mPlayer.reset();
                                 prepareAndPlay(MainActivity.pieceList.get(current).getFileName(), "Piece removed");
                             }
+                            if (status == 0x13) { // Is paused
+                                mPlayer.reset();
+                                status = 0x11;
+                            }
                             Intent sendIntent = new Intent(MainActivity.UPDATE_ACTION);
                             sendIntent.putExtra("update", status);
                             sendIntent.putExtra("current", current);
@@ -229,15 +271,19 @@ public class MusicService extends Service {
                             if (status == 0x12) {
                                 mPlayer.reset();
                                 prepareAndPlay(MainActivity.pieceList.get(current).getFileName(), "Piece removed");
-                                Intent sendIntent = new Intent(MainActivity.UPDATE_ACTION);
-                                sendIntent.putExtra("update", status);
-                                sendIntent.putExtra("current", current);
-                                sendBroadcast(sendIntent);
                             }
+                            if (status == 0x13) {
+                                mPlayer.reset();
+                                status = 0x11;
+                            }
+                            Intent sendIntent = new Intent(MainActivity.UPDATE_ACTION);
+                            sendIntent.putExtra("update", status);
+                            sendIntent.putExtra("current", current);
+                            sendBroadcast(sendIntent);
                         }
                     } else { // The one removed is not the one playing
                         boolean modified = false;
-                        if (status == 0x12) {
+                        if (status == 0x12 || status == 0x13) {
                             for (int i = 0; i < MainActivity.pieceList.size(); i++) {
                                 if (MainActivity.pieceList.get(i).getFileName() == currentFileName) {
                                     modified = current == i ? false : true;
@@ -365,6 +411,28 @@ public class MusicService extends Service {
                 sendBroadcast(sendIntent);
             }
 
+        }
+    }
+
+    private class MyOnPreparedListener implements MediaPlayer.OnPreparedListener {
+        int progress;
+        public MyOnPreparedListener(int progress) {
+            this.progress = progress;
+        }
+
+        @Override
+        public void onPrepared(MediaPlayer mp) {
+            mPlayer.start();
+            if (isInit) {
+                mPlayer.pause();
+                mPlayer.seekTo(progress);
+                Intent sendIntent = new Intent(MainActivity.UPDATE_ACTION);
+                sendIntent.putExtra("current", current);
+                sendIntent.putExtra("currentTime", mPlayer.getCurrentPosition());
+                sendIntent.putExtra("totalTime", mPlayer.getDuration());
+                sendBroadcast(sendIntent);
+                isInit = false;
+            }
         }
     }
 
