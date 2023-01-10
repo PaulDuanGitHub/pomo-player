@@ -49,9 +49,13 @@ public class MusicService extends Service {
     public void onCreate() {
         super.onCreate();
         // Init and add Wake Lock
-        powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        /**
+         * https://stackoverflow.com/questions/39954822/battery-optimizations-wakelocks-on-huawei-emui-4-0
+         * Please read more for Huawei deceive
+         */
+        powerManager = (PowerManager) MusicService.this.getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                "PomoPlayer::musicService");
+                "PomoPlayer::musicService"); // Could set to LocationManagerService
         wakeLock.acquire();
 
         // Init SharedPreferences
@@ -63,6 +67,7 @@ public class MusicService extends Service {
         IntentFilter filter = new IntentFilter();
         filter.addAction(MainActivity.CTL_ACTION);
         filter.addAction(MainActivity.UPDATE_LIST);
+        filter.addAction(MainActivity.SAVE_DATA);
         registerReceiver(serviceReceiver, filter);
 
         mPlayer = new MediaPlayer();
@@ -115,6 +120,8 @@ public class MusicService extends Service {
         } else if (!isInterval && savedProgress != -1) {
             String savedFileName = MainActivity.pieceList.get(current).getFileName();
             String musicPath = new File(getResources().getString(R.string.default_path), savedFileName).getPath();
+            Log.i("test",musicPath);
+            Log.i("test",Integer.toString(savedProgress));
             try {
                 mPlayer.setOnPreparedListener(new MyOnPreparedListener(savedProgress));
                 mPlayer.setDataSource(musicPath);
@@ -205,29 +212,29 @@ public class MusicService extends Service {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         unregisterReceiver(serviceReceiver);
         wakeLock.release();
-
-        // Save current and progress on destroy
-        Editor editor = sharedPreferences.edit();
-        editor.putInt("current", current);
-        if(isInterval) { // Is interval
-            editor.putInt("progress", (int) (System.currentTimeMillis() - intervalStartTime));
-            editor.putBoolean("isInterval", true);
-        }else { // Not interval
-            editor.putInt("progress", mPlayer.getCurrentPosition());
-            editor.putBoolean("isInterval", false);
-        }
-        editor.commit();
-
+        Log.i("test","awsl-service");
         mPlayer.release();
+        super.onDestroy();
     }
-
     private class MyReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(final Context context, Intent intent) {
-            if (intent.getAction() == MainActivity.UPDATE_LIST) { // Update list action
+            if (intent.getAction() == MainActivity.SAVE_DATA) {
+                // Save current and progress on destroy
+                Editor editor = sharedPreferences.edit();
+                editor.putInt("current", current);
+                if(isInterval) { // Is interval
+                    editor.putInt("progress", (int) (System.currentTimeMillis() - intervalStartTime));
+                    editor.putBoolean("isInterval", true);
+                }else { // Not interval
+                    editor.putInt("progress", mPlayer.getCurrentPosition());
+                    editor.putBoolean("isInterval", false);
+                }
+                editor.commit();
+                Log.i("test","Data Saved");
+            }else if (intent.getAction() == MainActivity.UPDATE_LIST) { // Update list action
                 if (MainActivity.pieceList.isEmpty()) { // Is Empty after update
                     mPlayer.reset();
                     currentFileName = null;

@@ -27,7 +27,12 @@ src\java\res\values\strings.xml
 #### Wake lock
 - https://developer.android.com/training/scheduling/wakelock?hl=zh-cn#java
 - https://blog.csdn.net/wzj0808/article/details/52608940
+- https://blog.csdn.net/feitukejihui/article/details/100020637
+- https://stackoverflow.com/questions/39954822/battery-optimizations-wakelocks-on-huawei-emui-4-0
 #### SharedPreferences
 - https://developer.android.com/reference/android/content/SharedPreferences
 - https://www.jianshu.com/p/540e44f00d3e
 - https://stackoverflow.com/questions/10614696/how-to-pass-parameters-to-onclicklistener
+#### When to save data
+- https://stackoverflow.com/questions/9186769/android-save-game-state-in-onpause-or-ondestroy
+- https://stackoverflow.com/questions/13956528/save-data-in-activitys-ondestroy-method

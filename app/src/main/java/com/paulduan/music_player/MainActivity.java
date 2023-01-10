@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final String CTL_ACTION = "com.paulduan.CTL_ACTION";
     public static final String UPDATE_ACTION = "com.paulduan.UPDATE_ACTION";
     public static final String UPDATE_LIST = "com.paulduan.UPDATE_LIST";
+    public static final String SAVE_DATA = "com.paulduan.SAVE_DATA";
 
     // Define music player status, 0x11 stop, 0x12 playing, 0x13 paused
     public int status = 0x11;
@@ -229,11 +230,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onDestroy() {
-        // Stop service
-        stopService(mIntent);
+        Log.i("test","awsl-activity");
         // Unregister receiver
         unregisterReceiver(activityReceiver);
+        // Stop service
+        stopService(mIntent);
         super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        Intent intent = new Intent(SAVE_DATA);
+        sendBroadcast(intent);
+        super.onPause();
     }
 
     /**
