@@ -1,6 +1,7 @@
 package com.paulduan.music_player;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -17,6 +19,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.provider.DocumentsContract;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -366,10 +370,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.path_setting:
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                intent.addCategory(Intent.CATEGORY_DEFAULT);
-                mStartForResult2.launch(intent);
+            case R.id.about:
+                TextView view  = new TextView(this);
+                view.setMovementMethod(LinkMovementMethod.getInstance());
+                view.setPadding(20,20,20,20);
+                view.setTextSize(18);
+                view.setText(Html.fromHtml("This is an open source project:<br/><a href=\"https://github.com/PaulDuanGitHub/pomo-player\">Github Link</a>", Html.FROM_HTML_MODE_COMPACT));
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setCancelable(true);
+                builder.setView(view);
+                AlertDialog alert = builder.create();
+                alert.show();
                 break;
         }
         return super.onOptionsItemSelected(item);

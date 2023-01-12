@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-<item android:id="@+id/path_setting" android:title="Set Music Directory"/>
+<item android:id="@+id/about" android:title="About"/>
 </menu>

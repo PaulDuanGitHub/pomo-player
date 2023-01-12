@@ -11,11 +11,11 @@
 
 ## Update Log
 #### Updated
+- 01/12/2023: Add about dialog.
 - 01/10/2023: Click and play.
 - 01/09/2023: Save and read last playing index and progress.
 - 01/09/2023: Add wake lock. 
 #### Todo
-- About me.
 
 ## Reference
 #### Folder picker 
