@@ -1,5 +1,6 @@
 package com.paulduan.music_player;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,10 +18,11 @@ public class MusicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     // Instance of OnStartDragListener
     private final OnStartDragListener mDragStartListener;
-
+    private final ClickListener mClickListener;
     // Constructor
-    public MusicAdapter(OnStartDragListener dragStartListener) {
-        mDragStartListener = dragStartListener;
+    public MusicAdapter(OnStartDragListener dragStartListener, ClickListener mClickListener) {
+        this.mClickListener = mClickListener;
+        this.mDragStartListener = dragStartListener;
     }
 
     @Override
@@ -121,7 +123,7 @@ public class MusicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     // Inner class
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
+    public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         TextView pieceTitle;
         TextView pieceAuthor;
         TextView pieceDuration;
@@ -133,10 +135,19 @@ public class MusicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             pieceAuthor = view.findViewById(R.id.music_author);
             pieceDuration = view.findViewById(R.id.music_duration);
             handler = view.findViewById(R.id.handler);
+            view.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int position = getAdapterPosition();
+            if (position >= 0) {
+                mClickListener.onItemClick(position, v);
+            }
         }
     }
 
-    public static class MyViewHolder1 extends RecyclerView.ViewHolder {
+    public class MyViewHolder1 extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView pieceTitle;
         TextView pieceDuration;
         MaterialButton handler;
@@ -146,6 +157,19 @@ public class MusicAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             pieceTitle = view.findViewById(R.id.music_title);
             pieceDuration = view.findViewById(R.id.music_duration);
             handler = view.findViewById(R.id.handler);
+            view.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View v) {
+            int position = getAdapterPosition();
+            if (position >= 0) {
+                mClickListener.onItemClick(position, v);
+            }
+        }
+    }
+
+    public interface ClickListener {
+        void onItemClick(int position, View v);
     }
 }

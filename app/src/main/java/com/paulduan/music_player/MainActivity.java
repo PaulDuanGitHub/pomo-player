@@ -16,7 +16,10 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.provider.DocumentsContract;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import android.widget.LinearLayout;
@@ -27,6 +30,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -48,7 +52,7 @@ import java.util.Date;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, OnStartDragListener {
-
+    // For choose file
     private ActivityResultLauncher<Intent> mStartForResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
                 @Override
@@ -57,9 +61,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Intent intent = result.getData();
                         Uri uri = intent.getData();
                         // Handle the Intent
-                        if(null != intent) { // Checking empty selection
-                            if(null != intent.getClipData()) { // Checking multiple selection or not
-                                for(int i = 0; i < intent.getClipData().getItemCount(); i++) {
+                        if (null != intent) { // Checking empty selection
+                            if (null != intent.getClipData()) { // Checking multiple selection or not
+                                for (int i = 0; i < intent.getClipData().getItemCount(); i++) {
                                     uri = intent.getClipData().getItemAt(i).getUri();
                                     addPiece(uri);
                                 }
@@ -75,6 +79,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }
             });
+    // For choose folder
+    private ActivityResultLauncher<Intent> mStartForResult2 = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent intent = result.getData();
+                        Uri uri = intent.getData();
+                        // Handle the Intent
+                        if (null != intent) { // Checking empty selection
+                            Uri docUri = DocumentsContract.buildDocumentUriUsingTree(uri,
+                                    DocumentsContract.getTreeDocumentId(uri));
+                            String path = ASFUriHelper.getPath(MainActivity.this, docUri);
+                            Log.i("test", path);
+                        }
+                    }
+                }
+            });
+
     private Intent mIntent;
     private RecyclerView musicList;
     private MusicAdapter adapter;
@@ -95,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final String UPDATE_ACTION = "com.paulduan.UPDATE_ACTION";
     public static final String UPDATE_LIST = "com.paulduan.UPDATE_LIST";
     public static final String SAVE_DATA = "com.paulduan.SAVE_DATA";
+    public static final String PLAY_SPECIFIED = "com.paulduan.PLAY_SPECIFIED";
 
     // Define music player status, 0x11 stop, 0x12 playing, 0x13 paused
     public int status = 0x11;
@@ -161,11 +185,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Create intent for MusicService and start
         mIntent = new Intent(MainActivity.this, MusicService.class);
         startService(mIntent);
-
         // Init RecycleView component
         musicList = findViewById(R.id.music_list);
         musicList.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new MusicAdapter(this); // We implement OnStartDragListener, so this class is an instance
+        adapter = new MusicAdapter(this, new MusicAdapter.ClickListener() {
+            @Override
+            public void onItemClick(int position, View v) {
+                Log.d("test", "onItemClick position: " + position);
+                play(position);
+            }
+        }); // We have implemented OnStartDragListener, so this class is an instance
         musicList.setAdapter(adapter);
         readJsonFile();
         // Init ItemTouchHelper component
@@ -230,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onDestroy() {
-        Log.i("test","awsl-activity");
+        Log.i("test", "awsl-activity");
         // Unregister receiver
         unregisterReceiver(activityReceiver);
         // Stop service
@@ -288,6 +317,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }
                 adapter.notifyDataSetChanged();
+                musicList.smoothScrollToPosition(current);
             }
 
             if (total >= 0) { // Make sure total is valid
@@ -323,6 +353,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
+     * Override onCreateOptionsMenu to set menu inflate
+     * @param menu
+     * @return
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.path_setting:
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                intent.addCategory(Intent.CATEGORY_DEFAULT);
+                mStartForResult2.launch(intent);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
      * Implement View.OnClickListener interface so that we can use MainActivity Class for button listener
      *
      * @param source
@@ -351,6 +404,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         sendBroadcast(intent);
     }
 
+    private void play(int index) {
+        Intent intent = new Intent(PLAY_SPECIFIED);
+        intent.putExtra("index", index);
+        sendBroadcast(intent);
+    }
+
     private String formatProgress(int progress) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss", Locale.CHINA);
         Date date = new Date(progress);
@@ -376,21 +435,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void openFileManager() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        intent.setDataAndType(Uri.parse(getResources().getString(R.string.default_path)), "audio/*");
+//        intent.setDataAndType(Uri.parse(getResources().getString(R.string.default_path)), "audio/*");
+        intent.setType("audio/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         mStartForResult.launch(intent);
     }
 
     private void addPiece(Uri uri) {
-        String fileName = uri.getLastPathSegment();
-        fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
-
+        String fileName;
+//        fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
+        fileName = ASFUriHelper.getPath(MainActivity.this,uri);
+        Log.i("test",fileName);
         String title;
         String artist;
         String duration;
         try {
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            mmr.setDataSource(MainActivity.this, uri);
+            mmr.setDataSource(MainActivity.this, Uri.parse(fileName));
             title = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
             artist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
             duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
@@ -402,13 +463,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         duration = formatProgress(Integer.parseInt(duration));
         MusicPiece selected = new MusicPiece(title, duration, artist, fileName);
 //                        closeFABMenu();
-        pieceList.add(selected);
+        // make sure there is no repeated music in the list
+        if (!pieceList.contains(selected)) {
+            pieceList.add(selected);
+        } else {
+            Toast.makeText(getApplicationContext(), "Already exist " + selected.getFileName(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void writeJsonFile() {
         Gson gson = new Gson();
         String json = gson.toJson(pieceList);
-        File file = new File(getResources().getString(R.string.default_path) + ".data.json");
+//        File file = new File(getResources().getString(R.string.default_path) + ".data.json");
+        File file = new File(getFilesDir() + "/.data.json");
         try {
             if (!file.exists()) {
                 file.createNewFile();
@@ -426,7 +493,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void readJsonFile() {
         Gson gson = new Gson();
-        File file = new File(getResources().getString(R.string.default_path) + ".data.json");
+//        File file = new File(getResources().getString(R.string.default_path) + ".data.json");
+        File file = new File(getFilesDir() + "/.data.json");
         try {
             if (!file.exists()) {
                 file.createNewFile();

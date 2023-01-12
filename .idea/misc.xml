@@ -33,6 +33,11 @@
         <entry key="..\:/Develop/music_player_d/app/src/main/res/layout/playing_music_item.xml" value="0.12395833333333334" />
         <entry key="..\:/Develop/music_player_d/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.124" />
         <entry key="..\:/Develop/music_player_d/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.124" />
+        <entry key="..\:/Develop/pomo-player/app/src/main/res/layout/interval_item.xml" value="0.10677083333333333" />
+        <entry key="..\:/Develop/pomo-player/app/src/main/res/layout/music_item.xml" value="0.10677083333333333" />
+        <entry key="..\:/Develop/pomo-player/app/src/main/res/layout/playing_interval_item.xml" value="0.10677083333333333" />
+        <entry key="..\:/Develop/pomo-player/app/src/main/res/layout/playing_music_item.xml" value="0.10677083333333333" />
+        <entry key="..\:/Develop/pomo-player/app/src/main/res/menu/menu.xml" value="0.103125" />
       </map>
     </option>
   </component>
