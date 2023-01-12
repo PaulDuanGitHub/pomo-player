@@ -9,12 +9,6 @@
 <img src="./readme/Screenshot.png" alt="" width="200"/>
 <p>I would like to create a simple mp3 player with INTERVAL between each song to practice Pomodoro Technique Technically and also learn and practice Android development skills. As my first Android app, technically, this app only has two function, one is play local mp3 file and the other one is play a 25 minutes interval.</p>
 
-## Getting Started
-Feel free to fork or pull request to add on or fix bugs. There only one place to modify before you run it. Please modify the path of music dic to your local music folder.
-```
-src\java\res\values\strings.xml
-```
-
 ## Update Log
 #### Updated
 - 01/10/2023: Click and play.
